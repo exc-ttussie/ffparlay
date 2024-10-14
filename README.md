@@ -1,2 +1,0 @@
-# ffparlay
-FF Parlay

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>14-Leg Parlay Odds Calculator</title>
+</head>
+<body>
+    <h1>14-Leg Parlay Odds Calculator</h1>
+    <form id="parlayForm">
+        <div>
+            <h3>Enter Odds for Each Bet (Decimal Format):</h3>
+            <div id="betsContainer">
+                <!-- Create 14 input fields for each bet -->
+                <label>Bet 1: <input type="number" step="any" id="bet1" required></label><br>
+                <label>Bet 2: <input type="number" step="any" id="bet2" required></label><br>
+                <label>Bet 3: <input type="number" step="any" id="bet3" required></label><br>
+                <label>Bet 4: <input type="number" step="any" id="bet4" required></label><br>
+                <label>Bet 5: <input type="number" step="any" id="bet5" required></label><br>
+                <label>Bet 6: <input type="number" step="any" id="bet6" required></label><br>
+                <label>Bet 7: <input type="number" step="any" id="bet7" required></label><br>
+                <label>Bet 8: <input type="number" step="any" id="bet8" required></label><br>
+                <label>Bet 9: <input type="number" step="any" id="bet9" required></label><br>
+                <label>Bet 10: <input type="number" step="any" id="bet10" required></label><br>
+                <label>Bet 11: <input type="number" step="any" id="bet11" required></label><br>
+                <label>Bet 12: <input type="number" step="any" id="bet12" required></label><br>
+                <label>Bet 13: <input type="number" step="any" id="bet13" required></label><br>
+                <label>Bet 14: <input type="number" step="any" id="bet14" required></label><br>
+            </div>
+            <button type="button" onclick="calculateParlay()">Calculate Parlay</button>
+        </div>
+    </form>
+
+    <h2>Results</h2>
+    <p id="totalOdds"></p>
+    <p id="potentialReturn"></p>
+    <p id="roi"></p>
+
+    <script>
+        function calculateParlay() {
+            // Collect all odds entered by the user
+            let totalOdds = 1;
+            for (let i = 1; i <= 14; i++) {
+                const betOdd = parseFloat(document.getElementById(`bet${i}`).value);
+                if (!isNaN(betOdd) && betOdd > 0) {
+                    totalOdds *= betOdd;  // Multiply odds together
+                } else {
+                    alert('Please enter valid odds for all bets');
+                    return;
+                }
+            }
+
+            // Fixed stake
+            const stake = 10;
+
+            // Calculate potential return and ROI
+            const potentialReturn = stake * totalOdds;
+            const roi = ((potentialReturn - stake) / stake) * 100;
+
+            // Display the results
+            document.getElementById('totalOdds').innerText = `Total Parlay Odds: ${totalOdds.toFixed(2)}`;
+            document.getElementById('potentialReturn').innerText = `Potential Return: $${potentialReturn.toFixed(2)}`;
+            document.getElementById('roi').innerText = `ROI: ${roi.toFixed(2)}%`;
+        }
+    </script>
+</body>
+</html>
