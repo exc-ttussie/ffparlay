@@ -2,15 +2,36 @@
 <html>
 <head>
     <title>Fleming Fantasy Parley Submission</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
     <h1>Fleming Fantasy Parley Submission</h1>
     <p><strong>Instructions:</strong> First enter Odds, then the Name. Once your bet is set for the week, it cannot be changed. Do not click 'Reset', that is only for Tomas to reset at the end of each week.</p>
-    <form id="parleyForm">
-    <form id="parleyForm">
-        <div id="betsContainer"></div>
-        <button type="button" onclick="resetFields()">Reset</button>
-    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Odds</th>
+            </tr>
+        </thead>
+        <tbody id="betsContainer"></tbody>
+    </table>
+
+    <button type="button" onclick="resetFields()">Reset</button>
 
     <h2>Results</h2>
     <p id="totalOdds">Total Parley Odds: N/A</p>
@@ -24,10 +45,10 @@
         const betsContainer = document.getElementById('betsContainer');
         users.forEach(user => {
             betsContainer.innerHTML += `
-                <label>${user.charAt(0).toUpperCase() + user.slice(1)}: 
-                    <input type="text" id="${user}_bet" oninput="updateAndLock('${user}')">
-                    <input type="number" id="${user}_odds" oninput="updateAndLock('${user}')">
-                </label><br>
+                <tr>
+                    <td><input type="text" id="${user}_bet" oninput="updateAndLock('${user}')"></td>
+                    <td><input type="number" id="${user}_odds" oninput="updateAndLock('${user}')"></td>
+                </tr>
             `;
         });
 
