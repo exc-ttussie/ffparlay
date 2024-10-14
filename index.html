@@ -1,31 +1,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>14-Leg Parlay Odds Calculator</title>
+    <title>14-Leg Parley Odds Calculator</title>
 </head>
 <body>
-    <h1>14-Leg Parlay Odds Calculator</h1>
-    <form id="parlayForm">
+    <h1>14-Leg Parley Odds Calculator</h1>
+    <form id="parleyForm">
         <div>
-            <h3>Enter Odds for Each Bet (Decimal Format):</h3>
+            <h3>Enter Bet and Odds for Each User (Odds in American Format):</h3>
             <div id="betsContainer">
-                <!-- Create 14 input fields for each bet -->
-                <label>Bet 1: <input type="number" step="any" id="bet1" required></label><br>
-                <label>Bet 2: <input type="number" step="any" id="bet2" required></label><br>
-                <label>Bet 3: <input type="number" step="any" id="bet3" required></label><br>
-                <label>Bet 4: <input type="number" step="any" id="bet4" required></label><br>
-                <label>Bet 5: <input type="number" step="any" id="bet5" required></label><br>
-                <label>Bet 6: <input type="number" step="any" id="bet6" required></label><br>
-                <label>Bet 7: <input type="number" step="any" id="bet7" required></label><br>
-                <label>Bet 8: <input type="number" step="any" id="bet8" required></label><br>
-                <label>Bet 9: <input type="number" step="any" id="bet9" required></label><br>
-                <label>Bet 10: <input type="number" step="any" id="bet10" required></label><br>
-                <label>Bet 11: <input type="number" step="any" id="bet11" required></label><br>
-                <label>Bet 12: <input type="number" step="any" id="bet12" required></label><br>
-                <label>Bet 13: <input type="number" step="any" id="bet13" required></label><br>
-                <label>Bet 14: <input type="number" step="any" id="bet14" required></label><br>
+                <!-- Create input fields for each user -->
+                <label>Tomas's Bet: <input type="text" id="tomas_bet" required></label>
+                <label>Odds: <input type="number" id="tomas_odds" required></label><br>
+
+                <label>Harrison's Bet: <input type="text" id="harrison_bet" required></label>
+                <label>Odds: <input type="number" id="harrison_odds" required></label><br>
+
+                <label>Mojo's Bet: <input type="text" id="mojo_bet" required></label>
+                <label>Odds: <input type="number" id="mojo_odds" required></label><br>
+
+                <label>Chris's Bet: <input type="text" id="chris_bet" required></label>
+                <label>Odds: <input type="number" id="chris_odds" required></label><br>
+
+                <label>Patric's Bet: <input type="text" id="patric_bet" required></label>
+                <label>Odds: <input type="number" id="patric_odds" required></label><br>
+
+                <label>Daniel's Bet: <input type="text" id="daniel_bet" required></label>
+                <label>Odds: <input type="number" id="daniel_odds" required></label><br>
+
+                <label>Chatt's Bet: <input type="text" id="chatt_bet" required></label>
+                <label>Odds: <input type="number" id="chatt_odds" required></label><br>
+
+                <label>DK's Bet: <input type="text" id="dk_bet" required></label>
+                <label>Odds: <input type="number" id="dk_odds" required></label><br>
+
+                <label>Nick's Bet: <input type="text" id="nick_bet" required></label>
+                <label>Odds: <input type="number" id="nick_odds" required></label><br>
+
+                <label>Parth's Bet: <input type="text" id="parth_bet" required></label>
+                <label>Odds: <input type="number" id="parth_odds" required></label><br>
+
+                <label>Sandia's Bet: <input type="text" id="sandia_bet" required></label>
+                <label>Odds: <input type="number" id="sandia_odds" required></label><br>
+
+                <label>Dylan's Bet: <input type="text" id="dylan_bet" required></label>
+                <label>Odds: <input type="number" id="dylan_odds" required></label><br>
+
+                <label>Rush's Bet: <input type="text" id="rush_bet" required></label>
+                <label>Odds: <input type="number" id="rush_odds" required></label><br>
+
+                <label>Alec's Bet: <input type="text" id="alec_bet" required></label>
+                <label>Odds: <input type="number" id="alec_odds" required></label><br>
             </div>
-            <button type="button" onclick="calculateParlay()">Calculate Parlay</button>
+            <button type="button" onclick="calculateParley()">Calculate Parley</button>
         </div>
     </form>
 
@@ -35,30 +62,51 @@
     <p id="roi"></p>
 
     <script>
-        function calculateParlay() {
-            // Collect all odds entered by the user
+        function convertAmericanToDecimal(americanOdds) {
+            if (americanOdds > 0) {
+                return (americanOdds / 100) + 1;
+            } else {
+                return (100 / Math.abs(americanOdds)) + 1;
+            }
+        }
+
+        function calculateParley() {
+            // Collect and convert odds to decimal for each user
             let totalOdds = 1;
-            for (let i = 1; i <= 14; i++) {
-                const betOdd = parseFloat(document.getElementById(`bet${i}`).value);
-                if (!isNaN(betOdd) && betOdd > 0) {
-                    totalOdds *= betOdd;  // Multiply odds together
+            let users = ["tomas", "harrison", "mojo", "chris", "patric", "daniel", "chatt", "dk", "nick", "parth", "sandia", "dylan", "rush", "alec"];
+            let betData = [];
+
+            for (let i = 0; i < users.length; i++) {
+                const betDesc = document.getElementById(`${users[i]}_bet`).value;
+                const americanOdds = parseFloat(document.getElementById(`${users[i]}_odds`).value);
+                
+                if (!isNaN(americanOdds)) {
+                    let decimalOdds = convertAmericanToDecimal(americanOdds);
+                    totalOdds *= decimalOdds;
+
+                    betData.push({
+                        user: users[i],
+                        bet: betDesc,
+                        odds: americanOdds,
+                    });
                 } else {
-                    alert('Please enter valid odds for all bets');
+                    alert(`Please enter valid odds for ${users[i]}`);
                     return;
                 }
             }
 
-            // Fixed stake
+            // Fixed stake of $10
             const stake = 10;
-
-            // Calculate potential return and ROI
             const potentialReturn = stake * totalOdds;
             const roi = ((potentialReturn - stake) / stake) * 100;
 
-            // Display the results
-            document.getElementById('totalOdds').innerText = `Total Parlay Odds: ${totalOdds.toFixed(2)}`;
+            // Display results
+            document.getElementById('totalOdds').innerText = `Total Parley Odds: ${totalOdds.toFixed(2)}`;
             document.getElementById('potentialReturn').innerText = `Potential Return: $${potentialReturn.toFixed(2)}`;
             document.getElementById('roi').innerText = `ROI: ${roi.toFixed(2)}%`;
+
+            // Log the bet data (or you can store it for further use)
+            console.log(betData);
         }
     </script>
 </body>
