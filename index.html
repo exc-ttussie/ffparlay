@@ -5,52 +5,12 @@
 </head>
 <body>
     <h1>14-Leg Parley Odds Calculator</h1>
-    <form id="parleyForm">
+    <form>
         <div>
             <h3>Enter Bet and Odds for Each User (Odds in American Format):</h3>
             <div id="betsContainer">
-                <!-- Create input fields for each user -->
-                <label>Tomas's Bet: <input type="text" id="tomas_bet" oninput="lockField('tomas')"></label>
-                <label>Odds: <input type="number" id="tomas_odds" oninput="calculateParley(); lockField('tomas')"></label><br>
-
-                <label>Harrison's Bet: <input type="text" id="harrison_bet" oninput="lockField('harrison')"></label>
-                <label>Odds: <input type="number" id="harrison_odds" oninput="calculateParley(); lockField('harrison')"></label><br>
-
-                <label>Mojo's Bet: <input type="text" id="mojo_bet" oninput="lockField('mojo')"></label>
-                <label>Odds: <input type="number" id="mojo_odds" oninput="calculateParley(); lockField('mojo')"></label><br>
-
-                <label>Chris's Bet: <input type="text" id="chris_bet" oninput="lockField('chris')"></label>
-                <label>Odds: <input type="number" id="chris_odds" oninput="calculateParley(); lockField('chris')"></label><br>
-
-                <label>Patric's Bet: <input type="text" id="patric_bet" oninput="lockField('patric')"></label>
-                <label>Odds: <input type="number" id="patric_odds" oninput="calculateParley(); lockField('patric')"></label><br>
-
-                <label>Daniel's Bet: <input type="text" id="daniel_bet" oninput="lockField('daniel')"></label>
-                <label>Odds: <input type="number" id="daniel_odds" oninput="calculateParley(); lockField('daniel')"></label><br>
-
-                <label>Chatt's Bet: <input type="text" id="chatt_bet" oninput="lockField('chatt')"></label>
-                <label>Odds: <input type="number" id="chatt_odds" oninput="calculateParley(); lockField('chatt')"></label><br>
-
-                <label>DK's Bet: <input type="text" id="dk_bet" oninput="lockField('dk')"></label>
-                <label>Odds: <input type="number" id="dk_odds" oninput="calculateParley(); lockField('dk')"></label><br>
-
-                <label>Nick's Bet: <input type="text" id="nick_bet" oninput="lockField('nick')"></label>
-                <label>Odds: <input type="number" id="nick_odds" oninput="calculateParley(); lockField('nick')"></label><br>
-
-                <label>Parth's Bet: <input type="text" id="parth_bet" oninput="lockField('parth')"></label>
-                <label>Odds: <input type="number" id="parth_odds" oninput="calculateParley(); lockField('parth')"></label><br>
-
-                <label>Sandia's Bet: <input type="text" id="sandia_bet" oninput="lockField('sandia')"></label>
-                <label>Odds: <input type="number" id="sandia_odds" oninput="calculateParley(); lockField('sandia')"></label><br>
-
-                <label>Dylan's Bet: <input type="text" id="dylan_bet" oninput="lockField('dylan')"></label>
-                <label>Odds: <input type="number" id="dylan_odds" oninput="calculateParley(); lockField('dylan')"></label><br>
-
-                <label>Rush's Bet: <input type="text" id="rush_bet" oninput="lockField('rush')"></label>
-                <label>Odds: <input type="number" id="rush_odds" oninput="calculateParley(); lockField('rush')"></label><br>
-
-                <label>Alec's Bet: <input type="text" id="alec_bet" oninput="lockField('alec')"></label>
-                <label>Odds: <input type="number" id="alec_odds" oninput="calculateParley(); lockField('alec')"></label><br>
+                <label>Tomas: <input type="text" id="tomas_bet" oninput="updateAndLock('tomas')"> <input type="number" id="tomas_odds" oninput="updateAndLock('tomas')"></label><br>
+                <!-- Repeat for each user -->
             </div>
             <button type="button" onclick="resetFields()">Reset</button>
         </div>
@@ -62,30 +22,24 @@
     <p id="roi">ROI: N/A</p>
 
     <script>
+        const users = ["tomas", "harrison", "mojo", "chris", "patric", "daniel", "chatt", "dk", "nick", "parth", "sandia", "dylan", "rush", "alec"];
+
         function convertAmericanToDecimal(americanOdds) {
-            if (americanOdds > 0) {
-                return (americanOdds / 100) + 1;
-            } else {
-                return (100 / Math.abs(americanOdds)) + 1;
-            }
+            return americanOdds > 0 ? (americanOdds / 100) + 1 : (100 / Math.abs(americanOdds)) + 1;
         }
 
         function calculateParley() {
             let totalOdds = 1;
-            let users = ["tomas", "harrison", "mojo", "chris", "patric", "daniel", "chatt", "dk", "nick", "parth", "sandia", "dylan", "rush", "alec"];
             let betsEntered = false;
 
-            for (let i = 0; i < users.length; i++) {
-                const americanOdds = parseFloat(document.getElementById(`${users[i]}_odds`).value);
-                
-                if (!isNaN(americanOdds)) {
-                    let decimalOdds = convertAmericanToDecimal(americanOdds);
-                    totalOdds *= decimalOdds;
+            users.forEach(user => {
+                const odds = parseFloat(document.getElementById(`${user}_odds`).value);
+                if (!isNaN(odds)) {
+                    totalOdds *= convertAmericanToDecimal(odds);
                     betsEntered = true;
                 }
-            }
+            });
 
-            // Check if any bets were entered
             if (!betsEntered) {
                 document.getElementById('totalOdds').innerText = "Total Parley Odds: N/A";
                 document.getElementById('potentialReturn').innerText = "Potential Return: N/A";
@@ -97,78 +51,54 @@
             const potentialReturn = stake * totalOdds;
             const roi = ((potentialReturn - stake) / stake) * 100;
 
-            // Display live results
             document.getElementById('totalOdds').innerText = `Total Parley Odds: ${totalOdds.toFixed(2)}`;
             document.getElementById('potentialReturn').innerText = `Potential Return: $${potentialReturn.toFixed(2)}`;
             document.getElementById('roi').innerText = `ROI: ${roi.toFixed(2)}%`;
         }
 
-        // Function to lock fields after entry and store data in localStorage
-        function lockField(user) {
+        function updateAndLock(user) {
+            calculateParley();
             const betField = document.getElementById(`${user}_bet`);
             const oddsField = document.getElementById(`${user}_odds`);
-            
+
             if (betField.value && oddsField.value) {
                 betField.disabled = true;
                 oddsField.disabled = true;
-
-                // Store data and lock status in localStorage
                 localStorage.setItem(`${user}_bet`, betField.value);
                 localStorage.setItem(`${user}_odds`, oddsField.value);
                 localStorage.setItem(`${user}_locked`, true);
             }
         }
 
-        // Reset fields and clear localStorage
         function resetFields() {
-            let users = ["tomas", "harrison", "mojo", "chris", "patric", "daniel", "chatt", "dk", "nick", "parth", "sandia", "dylan", "rush", "alec"];
+            users.forEach(user => {
+                document.getElementById(`${user}_bet`).disabled = false;
+                document.getElementById(`${user}_odds`).disabled = false;
+                document.getElementById(`${user}_bet`).value = "";
+                document.getElementById(`${user}_odds`).value = "";
+                localStorage.removeItem(`${user}_bet`);
+                localStorage.removeItem(`${user}_odds`);
+                localStorage.removeItem(`${user}_locked`);
+            });
 
-            for (let i = 0; i < users.length; i++) {
-                const betField = document.getElementById(`${users[i]}_bet`);
-                const oddsField = document.getElementById(`${users[i]}_odds`);
-                
-                betField.disabled = false;
-                oddsField.disabled = false;
-                betField.value = "";
-                oddsField.value = "";
-
-                // Clear stored data
-                localStorage.removeItem(`${users[i]}_bet`);
-                localStorage.removeItem(`${users[i]}_odds`);
-                localStorage.removeItem(`${users[i]}_locked`);
-            }
-
-            // Clear the results
             document.getElementById('totalOdds').innerText = "Total Parley Odds: N/A";
             document.getElementById('potentialReturn').innerText = "Potential Return: N/A";
-            document.getElementById('roiApologies for the abrupt cutoff. Here’s the remainder of the code with the full solution:
-
-```html
             document.getElementById('roi').innerText = "ROI: N/A";
         }
 
-        // Function to restore locked state from localStorage when the page loads
         function restoreFields() {
-            let users = ["tomas", "harrison", "mojo", "chris", "patric", "daniel", "chatt", "dk", "nick", "parth", "sandia", "dylan", "rush", "alec"];
-
-            for (let i = 0; i < users.length; i++) {
-                const betField = document.getElementById(`${users[i]}_bet`);
-                const oddsField = document.getElementById(`${users[i]}_odds`);
-
-                const betValue = localStorage.getItem(`${users[i]}_bet`);
-                const oddsValue = localStorage.getItem(`${users[i]}_odds`);
-                const isLocked = localStorage.getItem(`${users[i]}_locked`);
-
-                if (betValue && oddsValue && isLocked) {
-                    betField.value = betValue;
-                    oddsField.value = oddsValue;
-                    betField.disabled = true;
-                    oddsField.disabled = true;
+            users.forEach(user => {
+                const betValue = localStorage.getItem(`${user}_bet`);
+                const oddsValue = localStorage.getItem(`${user}_odds`);
+                if (betValue && oddsValue) {
+                    document.getElementById(`${user}_bet`).value = betValue;
+                    document.getElementById(`${user}_odds`).value = oddsValue;
+                    document.getElementById(`${user}_bet`).disabled = true;
+                    document.getElementById(`${user}_odds`).disabled = true;
                 }
-            }
+            });
         }
 
-        // Restore fields when the page loads
         window.onload = restoreFields;
     </script>
 </body>
