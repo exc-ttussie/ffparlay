@@ -5,15 +5,9 @@
 </head>
 <body>
     <h1>14-Leg Parley Odds Calculator</h1>
-    <form>
-        <div>
-            <h3>Enter Bet and Odds for Each User (Odds in American Format):</h3>
-            <div id="betsContainer">
-                <label>Tomas: <input type="text" id="tomas_bet" oninput="updateAndLock('tomas')"> <input type="number" id="tomas_odds" oninput="updateAndLock('tomas')"></label><br>
-                <!-- Repeat for each user -->
-            </div>
-            <button type="button" onclick="resetFields()">Reset</button>
-        </div>
+    <form id="parleyForm">
+        <div id="betsContainer"></div>
+        <button type="button" onclick="resetFields()">Reset</button>
     </form>
 
     <h2>Results</h2>
@@ -24,13 +18,23 @@
     <script>
         const users = ["tomas", "harrison", "mojo", "chris", "patric", "daniel", "chatt", "dk", "nick", "parth", "sandia", "dylan", "rush", "alec"];
 
+        // Dynamically generate the input fields for each user
+        const betsContainer = document.getElementById('betsContainer');
+        users.forEach(user => {
+            betsContainer.innerHTML += `
+                <label>${user.charAt(0).toUpperCase() + user.slice(1)}: 
+                    <input type="text" id="${user}_bet" oninput="updateAndLock('${user}')">
+                    <input type="number" id="${user}_odds" oninput="updateAndLock('${user}')">
+                </label><br>
+            `;
+        });
+
         function convertAmericanToDecimal(americanOdds) {
             return americanOdds > 0 ? (americanOdds / 100) + 1 : (100 / Math.abs(americanOdds)) + 1;
         }
 
         function calculateParley() {
-            let totalOdds = 1;
-            let betsEntered = false;
+            let totalOdds = 1, betsEntered = false;
 
             users.forEach(user => {
                 const odds = parseFloat(document.getElementById(`${user}_odds`).value);
@@ -47,10 +51,7 @@
                 return;
             }
 
-            const stake = 10;
-            const potentialReturn = stake * totalOdds;
-            const roi = ((potentialReturn - stake) / stake) * 100;
-
+            const stake = 10, potentialReturn = stake * totalOdds, roi = ((potentialReturn - stake) / stake) * 100;
             document.getElementById('totalOdds').innerText = `Total Parley Odds: ${totalOdds.toFixed(2)}`;
             document.getElementById('potentialReturn').innerText = `Potential Return: $${potentialReturn.toFixed(2)}`;
             document.getElementById('roi').innerText = `ROI: ${roi.toFixed(2)}%`;
@@ -66,7 +67,6 @@
                 oddsField.disabled = true;
                 localStorage.setItem(`${user}_bet`, betField.value);
                 localStorage.setItem(`${user}_odds`, oddsField.value);
-                localStorage.setItem(`${user}_locked`, true);
             }
         }
 
@@ -78,9 +78,7 @@
                 document.getElementById(`${user}_odds`).value = "";
                 localStorage.removeItem(`${user}_bet`);
                 localStorage.removeItem(`${user}_odds`);
-                localStorage.removeItem(`${user}_locked`);
             });
-
             document.getElementById('totalOdds').innerText = "Total Parley Odds: N/A";
             document.getElementById('potentialReturn').innerText = "Potential Return: N/A";
             document.getElementById('roi').innerText = "ROI: N/A";
