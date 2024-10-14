@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Fleming Fantasy Parley Submission</title>
+    <title>14-Leg Parley Odds Calculator</title>
     <style>
         table {
-            width: 100%;
+            width: 50%;
+            margin: auto;
             border-collapse: collapse;
         }
         th, td {
@@ -18,13 +19,14 @@
     </style>
 </head>
 <body>
-    <h1>Fleming Fantasy Parley Submission</h1>
+    <h1>14-Leg Parley Odds Calculator</h1>
     <p><strong>Instructions:</strong> First enter Odds, then the Name. Once your bet is set for the week, it cannot be changed. Do not click 'Reset', that is only for Tomas to reset at the end of each week.</p>
 
     <table>
         <thead>
             <tr>
-                <th>Name</th>
+                <th>User</th>
+                <th>Bet</th>
                 <th>Odds</th>
             </tr>
         </thead>
@@ -39,15 +41,16 @@
     <p id="roi">ROI: N/A</p>
 
     <script>
-        const users = ["tomas", "harrison", "mojo", "chris", "patric", "daniel", "chatt", "dk", "nick", "parth", "sandia", "dylan", "rush", "alec"];
+        const users = ["Tomas", "Harrison", "Mojo", "Chris", "Patric", "Daniel", "Chatt", "DK", "Nick", "Parth", "Sandia", "Dylan", "Rush", "Alec"];
 
-        // Dynamically generate the input fields for each user
+        // Dynamically generate input fields for each user
         const betsContainer = document.getElementById('betsContainer');
         users.forEach(user => {
             betsContainer.innerHTML += `
                 <tr>
-                    <td><input type="text" id="${user}_bet" oninput="updateAndLock('${user}')"></td>
-                    <td><input type="number" id="${user}_odds" oninput="updateAndLock('${user}')"></td>
+                    <td>${user}</td>
+                    <td><input type="text" id="${user.toLowerCase()}_bet" oninput="updateAndLock('${user.toLowerCase()}')"></td>
+                    <td><input type="number" id="${user.toLowerCase()}_odds" oninput="updateAndLock('${user.toLowerCase()}')"></td>
                 </tr>
             `;
         });
@@ -60,7 +63,7 @@
             let totalOdds = 1, betsEntered = false;
 
             users.forEach(user => {
-                const odds = parseFloat(document.getElementById(`${user}_odds`).value);
+                const odds = parseFloat(document.getElementById(`${user.toLowerCase()}_odds`).value);
                 if (!isNaN(odds)) {
                     totalOdds *= convertAmericanToDecimal(odds);
                     betsEntered = true;
@@ -95,12 +98,12 @@
 
         function resetFields() {
             users.forEach(user => {
-                document.getElementById(`${user}_bet`).disabled = false;
-                document.getElementById(`${user}_odds`).disabled = false;
-                document.getElementById(`${user}_bet`).value = "";
-                document.getElementById(`${user}_odds`).value = "";
-                localStorage.removeItem(`${user}_bet`);
-                localStorage.removeItem(`${user}_odds`);
+                document.getElementById(`${user.toLowerCase()}_bet`).disabled = false;
+                document.getElementById(`${user.toLowerCase()}_odds`).disabled = false;
+                document.getElementById(`${user.toLowerCase()}_bet`).value = "";
+                document.getElementById(`${user.toLowerCase()}_odds`).value = "";
+                localStorage.removeItem(`${user.toLowerCase()}_bet`);
+                localStorage.removeItem(`${user.toLowerCase()}_odds`);
             });
             document.getElementById('totalOdds').innerText = "Total Parley Odds: N/A";
             document.getElementById('potentialReturn').innerText = "Potential Return: N/A";
@@ -109,13 +112,13 @@
 
         function restoreFields() {
             users.forEach(user => {
-                const betValue = localStorage.getItem(`${user}_bet`);
-                const oddsValue = localStorage.getItem(`${user}_odds`);
+                const betValue = localStorage.getItem(`${user.toLowerCase()}_bet`);
+                const oddsValue = localStorage.getItem(`${user.toLowerCase()}_odds`);
                 if (betValue && oddsValue) {
-                    document.getElementById(`${user}_bet`).value = betValue;
-                    document.getElementById(`${user}_odds`).value = oddsValue;
-                    document.getElementById(`${user}_bet`).disabled = true;
-                    document.getElementById(`${user}_odds`).disabled = true;
+                    document.getElementById(`${user.toLowerCase()}_bet`).value = betValue;
+                    document.getElementById(`${user.toLowerCase()}_odds`).value = oddsValue;
+                    document.getElementById(`${user.toLowerCase()}_bet`).disabled = true;
+                    document.getElementById(`${user.toLowerCase()}_odds`).disabled = true;
                 }
             });
         }
