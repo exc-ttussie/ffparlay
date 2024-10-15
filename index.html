@@ -1,8 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fleming Fantasy Parley Submission</title>
     <style>
         body {
@@ -30,6 +28,24 @@
             padding: 5px 10px;
         }
     </style>
+    <!-- Add Firebase SDK scripts -->
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+
+<script>
+  // Your Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBY6FQqGz00OSryt4n5BAMhgE-G62bqomM",
+    authDomain: "ffparley.firebaseapp.com",
+    databaseURL: "https://ffparley-default-rtdb.firebaseio.com",
+    projectId: "ffparley",
+    storageBucket: "ffparley.appspot.com",
+    messagingSenderId: "1054701123200",
+    appId: "1:1054701123200:web:c4038e7fa1e561d3c1d865"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+</script>
 </head>
 <body>
     <h1>Fleming Fantasy Parley Submission</h1>
@@ -44,9 +60,7 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody id="betsContainer">
-            <!-- Users will be inserted here dynamically -->
-        </tbody>
+        <tbody id="betsContainer"></tbody>
     </table>
 
     <button type="button" onclick="resetFields()">Reset</button>
@@ -59,40 +73,46 @@
     <script>
         const users = ["Tomas", "Harrison", "Mojo", "Chris", "Patric", "Daniel", "Chatt", "DK", "Nick", "Parth", "Sandia", "Dylan", "Rush", "Alec"];
 
-        // Dynamically generate input fields for each user
+        // Dynamically generate input fields and submit button for each user
         const betsContainer = document.getElementById('betsContainer');
         users.forEach(user => {
-            const row = document.createElement('tr');
-
-            const userCell = document.createElement('td');
-            userCell.textContent = user;
-            row.appendChild(userCell);
-
-            const betCell = document.createElement('td');
-            const betInput = document.createElement('input');
-            betInput.type = 'text';
-            betInput.id = `${user.toLowerCase()}_bet`;
-            betCell.appendChild(betInput);
-            row.appendChild(betCell);
-
-            const oddsCell = document.createElement('td');
-            const oddsInput = document.createElement('input');
-            oddsInput.type = 'number';
-            oddsInput.id = `${user.toLowerCase()}_odds`;
-            oddsCell.appendChild(oddsInput);
-            row.appendChild(oddsCell);
-
-            const actionCell = document.createElement('td');
-            const submitButton = document.createElement('button');
-            submitButton.textContent = 'Submit';
-            submitButton.onclick = function() {
-                submitBet(user.toLowerCase());
-            };
-            actionCell.appendChild(submitButton);
-            row.appendChild(actionCell);
-
-            betsContainer.appendChild(row);
+            betsContainer.innerHTML += `
+                <tr>
+                    <td>${user}</td>
+                    <td><input type="text" id="${user.toLowerCase()}_bet"></td>
+                    <td><input type="number" id="${user.toLowerCase()}_odds"></td>
+                    <td><button onclick="submitBet('${user.toLowerCase()}')">Submit</button></td>
+                </tr>
+            `;
         });
+
+        function convertAmericanToDecimal(americanOdds) {
+            return americanOdds > 0 ? (americanOdds / 100) + 1 : (100 / Math.abs(americanOdds)) + 1;
+        }
+
+        function calculateParley() {
+            let totalOdds = 1, betsEntered = false;
+
+            users.forEach(user => {
+                const odds = parseFloat(document.getElementById(`${user.toLowerCase()}_odds`).value);
+                if (!isNaN(odds)) {
+                    totalOdds *= convertAmericanToDecimal(odds);
+                    betsEntered = true;
+                }
+            });
+
+            if (!betsEntered) {
+                document.getElementById('totalOdds').innerText = "Total Parley Odds: N/A";
+                document.getElementById('potentialReturn').innerText = "Potential Return: N/A";
+                document.getElementById('roi').innerText = "ROI: N/A";
+                return;
+            }
+
+            const stake = 10, potentialReturn = stake * totalOdds, roi = ((potentialReturn - stake) / stake) * 100;
+            document.getElementById('totalOdds').innerText = `Total Parley Odds: ${totalOdds.toFixed(2)}`;
+            document.getElementById('potentialReturn').innerText = `Potential Return: $${potentialReturn.toFixed(2)}`;
+            document.getElementById('roi').innerText = `ROI: ${roi.toFixed(2)}%`;
+        }
 
         function submitBet(user) {
             const betField = document.getElementById(`${user}_bet`);
@@ -101,9 +121,18 @@
             if (betField.value && oddsField.value) {
                 betField.disabled = true;
                 oddsField.disabled = true;
-                alert(`Bet Submitted for ${user}`);
+        
+                // Store data in Firebase
+                firebase.database().ref('submissions/' + user).set({
+                    bet: betField.value,
+                    odds: oddsField.value
+                });
             }
+
+            calculateParley();
         }
+
+
 
         function resetFields() {
             users.forEach(user => {
@@ -111,65 +140,30 @@
                 document.getElementById(`${user.toLowerCase()}_odds`).disabled = false;
                 document.getElementById(`${user.toLowerCase()}_bet`).value = "";
                 document.getElementById(`${user.toLowerCase()}_odds`).value = "";
+                localStorage.removeItem(`${user.toLowerCase()}_bet`);
+                localStorage.removeItem(`${user.toLowerCase()}_odds`);
             });
             document.getElementById('totalOdds').innerText = "Total Parley Odds: N/A";
             document.getElementById('potentialReturn').innerText = "Potential Return: N/A";
             document.getElementById('roi').innerText = "ROI: N/A";
         }
+
+        function restoreFields() {
+            users.forEach(user => {
+                firebase.database().ref('submissions/' + user).once('value').then(snapshot => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        document.getElementById(`${user}_bet`).value = data.bet;
+                        document.getElementById(`${user}_odds`).value = data.odds;
+                        document.getElementById(`${user}_bet`).disabled = true;
+                        document.getElementById(`${user}_odds`).disabled = true;
+                    }
+                });
+            });
+        }
+
+
+        window.onload = restoreFields;
     </script>
 </body>
 </html>
-
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js"></script>
-
-<script>
-  // Your Firebase configuration
-  const firebaseConfig = {
-      apiKey: "AIzaSyBY6FQqGz00OSryt4n5BAMhgE-G62bqomM",
-      authDomain: "ffparley.firebaseapp.com",
-      databaseURL: "https://ffparley-default-rtdb.firebaseio.com",
-      projectId: "ffparley",
-      storageBucket: "ffparley.appspot.com",
-      messagingSenderId: "1054701123200",
-      appId: "1:1054701123200:web:c4038e7fa1e561d3c1d865",
-      measurementId: "G-1LC7BC64XP"
-  };
-
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const database = firebase.database();
-
-  function submitBet(user) {
-      const betField = document.getElementById(`${user}_bet`);
-      const oddsField = document.getElementById(`${user}_odds`);
-
-      if (betField.value && oddsField.value) {
-          betField.disabled = true;
-          oddsField.disabled = true;
-
-          // Save to Firebase
-          database.ref('submissions/' + user).set({
-              bet: betField.value,
-              odds: oddsField.value
-          });
-      }
-  }
-
-  function restoreFields() {
-      users.forEach(user => {
-          database.ref('submissions/' + user).once('value').then(snapshot => {
-              if (snapshot.exists()) {
-                  const data = snapshot.val();
-                  document.getElementById(`${user}_bet`).value = data.bet;
-                  document.getElementById(`${user}_odds`).value = data.odds;
-                  document.getElementById(`${user}_bet`).disabled = true;
-                  document.getElementById(`${user}_odds`).disabled = true;
-              }
-          });
-      });
-  }
-
-  window.onload = restoreFields;
-</script>
