@@ -153,14 +153,20 @@
                 firebase.database().ref('submissions/' + user).once('value').then(snapshot => {
                     if (snapshot.exists()) {
                         const data = snapshot.val();
+                        console.log(`Restoring ${user}: `, data);
                         document.getElementById(`${user.toLowerCase()}_bet`).value = data.bet;
                         document.getElementById(`${user.toLowerCase()}_odds`).value = data.odds;
                         document.getElementById(`${user.toLowerCase()}_bet`).disabled = true;
                         document.getElementById(`${user.toLowerCase()}_odds`).disabled = true;
+                    } else {
+                        console.log(`No data found for ${user}`);
                     }
+                }).catch(error => {
+                    console.error(`Error retrieving data for ${user}:`, error);
                 });
             });
         }
+
 
         window.onload = restoreFields;
     </script>
