@@ -14,7 +14,7 @@
             background-color: white;
         }
         th, td {
-            border: 1px solid red;
+            border: 1px white;
             padding: 8px;
             text-align: left;
         }
@@ -124,7 +124,7 @@
                 oddsField.disabled = true;
                 
                 // Store data in Firebase
-                firebase.database().ref('submissions/' + user).set({
+                firebase.database().ref('submissions/{user}).set({
                     bet: betField.value,
                     odds: oddsField.value
                 });
@@ -141,7 +141,7 @@
                 document.getElementById(`${user.toLowerCase()}_odds`).value = "";
                 
                 // Remove from Firebase
-                firebase.database().ref('submissions/' + user).remove();
+                firebase.database().ref('submissions/{user}).remove();
             });
             document.getElementById('totalOdds').innerText = "Total Parley Odds: N/A";
             document.getElementById('potentialReturn').innerText = "Potential Return: N/A";
@@ -150,7 +150,7 @@
 
         function restoreFields() {
             users.forEach(user => {
-                firebase.database().ref('submissions/' + user).once('value').then(snapshot => {
+                firebase.database().ref('submissions/{user}).once('value').then(snapshot => {
                     if (snapshot.exists()) {
                         const data = snapshot.val();
                         console.log(`Restoring ${user}: `, data);
