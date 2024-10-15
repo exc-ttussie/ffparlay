@@ -168,6 +168,9 @@
                     console.error(`Error retrieving data for ${user}:`, error);
                 });
             });
+            
+            // Call calculateParley() to update ROI and other results
+            calculateParley();
         }
 
 
