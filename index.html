@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fleming Fantasy Parley Submission</title>
     <style>
         body {
@@ -14,7 +16,7 @@
             background-color: white;
         }
         th, td {
-            border: 1px white;
+            border: 1px solid red;
             padding: 8px;
             text-align: left;
         }
@@ -31,7 +33,7 @@
 </head>
 <body>
     <h1>Fleming Fantasy Parley Submission</h1>
-    <p><strong>Instructions:</strong> Enter your Bet Name and Odds, and click Submit to finalize. Do not click 'Reset', that is only for Tomas to reset at the end of each week.</p>
+    <p><strong>Instructions:</strong> First enter Odds, then the Bet. Once your bet is set for the week, click Submit to lock it. Do not click 'Reset', that is only for Tomas to reset at the end of each week.</p>
 
     <table>
         <thead>
@@ -52,7 +54,27 @@
     <p id="potentialReturn">Potential Return: N/A</p>
     <p id="roi">ROI: N/A</p>
 
+    <!-- Add Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js"></script>
+
     <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBY6FQqGz00OSryt4n5BAMhgE-G62bqomM",
+            authDomain: "ffparley.firebaseapp.com",
+            databaseURL: "https://ffparley-default-rtdb.firebaseio.com",
+            projectId: "ffparley",
+            storageBucket: "ffparley.appspot.com",
+            messagingSenderId: "1054701123200",
+            appId: "1:1054701123200:web:c4038e7fa1e561d3c1d865",
+            measurementId: "G-1LC7BC64XP"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         const users = ["Tomas", "Harrison", "Mojo", "Chris", "Patric", "Daniel", "Chatt", "DK", "Nick", "Parth", "Sandia", "Dylan", "Rush", "Alec"];
 
         // Dynamically generate input fields and submit button for each user
@@ -103,8 +125,12 @@
             if (betField.value && oddsField.value) {
                 betField.disabled = true;
                 oddsField.disabled = true;
-                localStorage.setItem(`${user}_bet`, betField.value);
-                localStorage.setItem(`${user}_odds`, oddsField.value);
+
+                // Save data to Firebase Realtime Database
+                database.ref('submissions/' + user).set({
+                    bet: betField.value,
+                    odds: oddsField.value
+                });
             }
 
             calculateParley();
@@ -116,8 +142,7 @@
                 document.getElementById(`${user.toLowerCase()}_odds`).disabled = false;
                 document.getElementById(`${user.toLowerCase()}_bet`).value = "";
                 document.getElementById(`${user.toLowerCase()}_odds`).value = "";
-                localStorage.removeItem(`${user.toLowerCase()}_bet`);
-                localStorage.removeItem(`${user.toLowerCase()}_odds`);
+                database.ref('submissions/' + user).remove();
             });
             document.getElementById('totalOdds').innerText = "Total Parley Odds: N/A";
             document.getElementById('potentialReturn').innerText = "Potential Return: N/A";
@@ -126,14 +151,15 @@
 
         function restoreFields() {
             users.forEach(user => {
-                const betValue = localStorage.getItem(`${user.toLowerCase()}_bet`);
-                const oddsValue = localStorage.getItem(`${user.toLowerCase()}_odds`);
-                if (betValue && oddsValue) {
-                    document.getElementById(`${user.toLowerCase()}_bet`).value = betValue;
-                    document.getElementById(`${user.toLowerCase()}_odds`).value = oddsValue;
-                    document.getElementById(`${user.toLowerCase()}_bet`).disabled = true;
-                    document.getElementById(`${user.toLowerCase()}_odds`).disabled = true;
-                }
+                database.ref('submissions/' + user).once('value').then(snapshot => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        document.getElementById(`${user.toLowerCase()}_bet`).value = data.bet;
+                        document.getElementById(`${user.toLowerCase()}_odds`).value = data.odds;
+                        document.getElementById(`${user.toLowerCase()}_bet`).disabled = true;
+                        document.getElementById(`${user.toLowerCase()}_odds`).disabled = true;
+                    }
+                });
             });
         }
 
