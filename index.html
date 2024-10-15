@@ -135,18 +135,20 @@
 
         function resetFields() {
             users.forEach(user => {
-                document.getElementById(`${user.toLowerCase()}_bet`).disabled = false;
-                document.getElementById(`${user.toLowerCase()}_odds`).disabled = false;
-                document.getElementById(`${user.toLowerCase()}_bet`).value = "";
-                document.getElementById(`${user.toLowerCase()}_odds`).value = "";
-                
-                // Remove from Firebase
-                firebase.database().ref(`submissions/${user}`).remove();
+                const userKey = user.toLowerCase();  // Ensure lowercase key is used
+                document.getElementById(`${userKey}_bet`).disabled = false;
+                document.getElementById(`${userKey}_odds`).disabled = false;
+                document.getElementById(`${userKey}_bet`).value = "";
+                document.getElementById(`${userKey}_odds`).value = "";
+        
+                // Remove from Firebase using the correct lowercase path
+                firebase.database().ref(`submissions/${userKey}`).remove();
             });
             document.getElementById('totalOdds').innerText = "Total Parley Odds: N/A";
             document.getElementById('potentialReturn').innerText = "Potential Return: N/A";
             document.getElementById('roi').innerText = "ROI: N/A";
         }
+
 
         function restoreFields() {
             users.forEach(user => {
