@@ -14,7 +14,7 @@
             background-color: white;
         }
         th, td {
-            border: 1px white;
+            border: 1px solid red;
             padding: 8px;
             text-align: left;
         }
@@ -28,24 +28,6 @@
             padding: 5px 10px;
         }
     </style>
-    <!-- Add Firebase SDK scripts -->
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
-
-<script>
-  // Your Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyBY6FQqGz00OSryt4n5BAMhgE-G62bqomM",
-    authDomain: "ffparley.firebaseapp.com",
-    databaseURL: "https://ffparley-default-rtdb.firebaseio.com",
-    projectId: "ffparley",
-    storageBucket: "ffparley.appspot.com",
-    messagingSenderId: "1054701123200",
-    appId: "1:1054701123200:web:c4038e7fa1e561d3c1d865"
-  };
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-</script>
 </head>
 <body>
     <h1>Fleming Fantasy Parley Submission</h1>
@@ -69,6 +51,25 @@
     <p id="totalOdds">Total Parley Odds: N/A</p>
     <p id="potentialReturn">Potential Return: N/A</p>
     <p id="roi">ROI: N/A</p>
+
+    <!-- Firebase SDK and Config -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script>
+      // Your Firebase configuration
+      const firebaseConfig = {
+          apiKey: "AIzaSyBY6FQqGz00OSryt4n5BAMhgE-G62bqomM",
+          authDomain: "ffparley.firebaseapp.com",
+          databaseURL: "https://ffparley-default-rtdb.firebaseio.com",
+          projectId: "ffparley",
+          storageBucket: "ffparley.appspot.com",
+          messagingSenderId: "1054701123200",
+          appId: "1:1054701123200:web:c4038e7fa1e561d3c1d865",
+          measurementId: "G-1LC7BC64XP"
+        };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+    </script>
 
     <script>
         const users = ["Tomas", "Harrison", "Mojo", "Chris", "Patric", "Daniel", "Chatt", "DK", "Nick", "Parth", "Sandia", "Dylan", "Rush", "Alec"];
@@ -121,7 +122,7 @@
             if (betField.value && oddsField.value) {
                 betField.disabled = true;
                 oddsField.disabled = true;
-        
+                
                 // Store data in Firebase
                 firebase.database().ref('submissions/' + user).set({
                     bet: betField.value,
@@ -132,16 +133,15 @@
             calculateParley();
         }
 
-
-
         function resetFields() {
             users.forEach(user => {
                 document.getElementById(`${user.toLowerCase()}_bet`).disabled = false;
                 document.getElementById(`${user.toLowerCase()}_odds`).disabled = false;
                 document.getElementById(`${user.toLowerCase()}_bet`).value = "";
                 document.getElementById(`${user.toLowerCase()}_odds`).value = "";
-                localStorage.removeItem(`${user.toLowerCase()}_bet`);
-                localStorage.removeItem(`${user.toLowerCase()}_odds`);
+                
+                // Remove from Firebase
+                firebase.database().ref('submissions/' + user).remove();
             });
             document.getElementById('totalOdds').innerText = "Total Parley Odds: N/A";
             document.getElementById('potentialReturn').innerText = "Potential Return: N/A";
@@ -153,15 +153,14 @@
                 firebase.database().ref('submissions/' + user).once('value').then(snapshot => {
                     if (snapshot.exists()) {
                         const data = snapshot.val();
-                        document.getElementById(`${user}_bet`).value = data.bet;
-                        document.getElementById(`${user}_odds`).value = data.odds;
-                        document.getElementById(`${user}_bet`).disabled = true;
-                        document.getElementById(`${user}_odds`).disabled = true;
+                        document.getElementById(`${user.toLowerCase()}_bet`).value = data.bet;
+                        document.getElementById(`${user.toLowerCase()}_odds`).value = data.odds;
+                        document.getElementById(`${user.toLowerCase()}_bet`).disabled = true;
+                        document.getElementById(`${user.toLowerCase()}_odds`).disabled = true;
                     }
                 });
             });
         }
-
 
         window.onload = restoreFields;
     </script>
