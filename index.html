@@ -11,27 +11,35 @@
             width: 40%;
             border-collapse: collapse;
             margin-left: 0;
+            background-color: white;
         }
         th, td {
-            border: 1px solid white;
+            border: 1px solid red;
             padding: 8px;
             text-align: left;
         }
         th {
             background-color: white;
         }
+        button {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+        }
     </style>
 </head>
 <body>
     <h1>Fleming Fantasy Parley Submission</h1>
-    <p><strong>Instructions:</strong> First enter Odds, then the Bet Name. Once your bet is set for the week, it cannot be changed. Do not click 'Reset', that is only for Tomas to reset at the end of each week.</p>
-    <p>Please use odds from DraftKings Sportsbook</p>
+    <p><strong>Instructions:</strong> First enter Odds, then the Bet. Once your bet is set for the week, click Submit to lock it. Do not click 'Reset', that is only for Tomas to reset at the end of each week.</p>
+
     <table>
         <thead>
             <tr>
                 <th>User</th>
                 <th>Bet</th>
                 <th>Odds</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody id="betsContainer"></tbody>
@@ -47,14 +55,15 @@
     <script>
         const users = ["Tomas", "Harrison", "Mojo", "Chris", "Patric", "Daniel", "Chatt", "DK", "Nick", "Parth", "Sandia", "Dylan", "Rush", "Alec"];
 
-        // Dynamically generate input fields for each user
+        // Dynamically generate input fields and submit button for each user
         const betsContainer = document.getElementById('betsContainer');
         users.forEach(user => {
             betsContainer.innerHTML += `
                 <tr>
                     <td>${user}</td>
-                    <td><input type="text" id="${user.toLowerCase()}_bet" oninput="updateAndLock('${user.toLowerCase()}')"></td>
-                    <td><input type="number" id="${user.toLowerCase()}_odds" oninput="updateAndLock('${user.toLowerCase()}')"></td>
+                    <td><input type="text" id="${user.toLowerCase()}_bet"></td>
+                    <td><input type="number" id="${user.toLowerCase()}_odds"></td>
+                    <td><button onclick="submitBet('${user.toLowerCase()}')">Submit</button></td>
                 </tr>
             `;
         });
@@ -87,8 +96,7 @@
             document.getElementById('roi').innerText = `ROI: ${roi.toFixed(2)}%`;
         }
 
-        function updateAndLock(user) {
-            calculateParley();
+        function submitBet(user) {
             const betField = document.getElementById(`${user}_bet`);
             const oddsField = document.getElementById(`${user}_odds`);
 
@@ -98,6 +106,8 @@
                 localStorage.setItem(`${user}_bet`, betField.value);
                 localStorage.setItem(`${user}_odds`, oddsField.value);
             }
+
+            calculateParley();
         }
 
         function resetFields() {
