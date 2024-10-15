@@ -79,15 +79,41 @@
 
         // Dynamically generate input fields and submit button for each user
         const betsContainer = document.getElementById('betsContainer');
-        users.forEach(user => {
-            betsContainer.innerHTML += `
-                <tr>
-                    <td>${user}</td>
-                    <td><input type="text" id="${user.toLowerCase()}_bet"></td>
-                    <td><input type="number" id="${user.toLowerCase()}_odds"></td>
-                    <td><button onclick="submitBet('${user.toLowerCase()}')">Submit</button></td>
-                </tr>
-            `;
+        
+        // Ensure the table rows are properly generated
+        document.addEventListener("DOMContentLoaded", function() {
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                
+                const userCell = document.createElement('td');
+                userCell.textContent = user;
+                row.appendChild(userCell);
+                
+                const betCell = document.createElement('td');
+                const betInput = document.createElement('input');
+                betInput.type = 'text';
+                betInput.id = `${user.toLowerCase()}_bet`;
+                betCell.appendChild(betInput);
+                row.appendChild(betCell);
+
+                const oddsCell = document.createElement('td');
+                const oddsInput = document.createElement('input');
+                oddsInput.type = 'number';
+                oddsInput.id = `${user.toLowerCase()}_odds`;
+                oddsCell.appendChild(oddsInput);
+                row.appendChild(oddsCell);
+
+                const actionCell = document.createElement('td');
+                const submitButton = document.createElement('button');
+                submitButton.textContent = 'Submit';
+                submitButton.onclick = function() {
+                    submitBet(user.toLowerCase());
+                };
+                actionCell.appendChild(submitButton);
+                row.appendChild(actionCell);
+
+                betsContainer.appendChild(row);
+            });
         });
 
         function convertAmericanToDecimal(americanOdds) {
