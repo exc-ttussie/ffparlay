@@ -151,27 +151,28 @@
 
 
         function restoreFields() {
+            let promises = [];
+    
             users.forEach(user => {
-                const userKey = user.toLowerCase();  // Ensure the same lowercase user ID is used
-                firebase.database().ref(`submissions/${userKey}`).once('value').then(snapshot => {
+                const userKey = user.toLowerCase();
+                let promise = firebase.database().ref(`submissions/${userKey}`).once('value').then(snapshot => {
                     if (snapshot.exists()) {
                         const data = snapshot.val();
-                        console.log(`Restoring ${user}: `, data);
                         document.getElementById(`${userKey}_bet`).value = data.bet;
                         document.getElementById(`${userKey}_odds`).value = data.odds;
                         document.getElementById(`${userKey}_bet`).disabled = true;
                         document.getElementById(`${userKey}_odds`).disabled = true;
-                    } else {
-                        console.log(`No data found for ${user}`);
                     }
-                }).catch(error => {
-                    console.error(`Error retrieving data for ${user}:`, error);
                 });
+                promises.push(promise);
             });
-            
-            // Call calculateParley() to update ROI and other results
-            calculateParley();
+
+            // Once all fields are restored, calculate parley
+            Promise.all(promises).then(() => {
+                calculateParley();
+            });
         }
+
 
 
         window.onload = restoreFields;
